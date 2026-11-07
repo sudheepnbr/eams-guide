@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>All modules — EAMS Guide</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topnav">
+    <div class="wrap topnav-inner">
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"></span>EAMS Guide</a>
+      <nav class="nav-links" aria-label="Guide">
+        <a href="index.html">Overview</a>
+        <a href="stack-requirements.html">Stack &amp; requirements</a>
+        <a class="is-on" href="modules.html">All modules</a>
+        <a href="https://github.com/sudheepnbr/eams-guide">Guide repo</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <h1>Module reference</h1>
+      <p>Complete product-area guide for operators and implementers. Activation is controlled in Admin Settings (<code>MODULE_ACTIVATION_JSON</code>).</p>
+    </div>
+
+    <section>
+      <h2>Quick navigation</h2>
+      <div class="toc">
+        <a href="#asset">1. Asset</a>
+        <a href="#maintenance">2. Maintenance</a>
+        <a href="#service-desk">3. Service Desk</a>
+        <a href="#change">4. Change</a>
+        <a href="#quotation">5. Quotation and PO</a>
+        <a href="#projects">6. Projects</a>
+        <a href="#floor-map">7. Floor Map</a>
+        <a href="#dms">8. Document Management</a>
+        <a href="#elearning">9. E-Learning</a>
+        <a href="#admin">Admin, Users, FAQs</a>
+      </div>
+    </section>
+
+    <section id="asset">
+      <h2>1. Asset</h2>
+      <p><strong>Path:</strong> <code>/module/assets</code> · <strong>Key:</strong> <code>asset</code> · <strong>Access:</strong> <code>MODULE_ACCESS_ASSET</code></p>
+      <ul>
+        <li>Asset register with KPI strip (total, assigned, unassigned, scrapped, warranty due, under service).</li>
+        <li>GRN (goods receipt), register wizard, transfer, bulk barcode, import/export, consumables, warehouse stock, software register.</li>
+        <li>Masters: category, sub-category, floor, location, vendor, warehouse, employees — scoped by instance.</li>
+        <li>Software access reviews and related compliance tooling.</li>
+      </ul>
+      <p class="note">List data is paged via <code>/module/assets/api/table-page</code>; vendor catalog sync runs on vendor master maintenance, not every dashboard open.</p>
+    </section>
+
+    <section id="maintenance">
+      <h2>2. Maintenance</h2>
+      <p><strong>Path:</strong> <code>/module/asset-maintenance</code> · <strong>Key:</strong> <code>maintenance</code> · <strong>Access:</strong> <code>MODULE_ACCESS_MAINTENANCE</code></p>
+      <ul>
+        <li>Work orders and preventive maintenance against assets.</li>
+        <li>KPIs for open, overdue, under maintenance, completed, critical, and Service Desk transfers.</li>
+        <li>Technicians, SLA / expected completion, before/after photos and invoices.</li>
+      </ul>
+    </section>
+
+    <section id="service-desk">
+      <h2>3. Service Desk</h2>
+      <p><strong>Path:</strong> <code>/module/service-desk</code> (portal for requesters) · <strong>Key:</strong> <code>service_desk</code></p>
+      <ul>
+        <li>Tickets: Incident, Request, Problem, Change categories.</li>
+        <li>Technician dashboard with KPI filters, dynamic search, instance and assignee scope.</li>
+        <li>Requester portal for “my tickets”; inbound email processing when configured.</li>
+        <li>Asset picker linkage, timeline, email compose, milestone UI.</li>
+      </ul>
+    </section>
+
+    <section id="change">
+      <h2>4. Change</h2>
+      <p><strong>Path:</strong> <code>/module/changes</code> · <strong>Key:</strong> <code>change</code> · <strong>Access:</strong> <code>MODULE_ACCESS_CHANGE</code></p>
+      <ul>
+        <li>RFC-style change records with approval workflow and risk/priority.</li>
+        <li>KPI strip: total, open, pending approval, on hold, approved, rejected, completed, high/critical risk.</li>
+        <li>Approver configuration for admins; exportable change list.</li>
+      </ul>
+    </section>
+
+    <section id="quotation">
+      <h2>5. Quotation and PO</h2>
+      <p><strong>Path:</strong> <code>/module/quotations</code> · <strong>Key:</strong> <code>quotation</code> · <strong>Access:</strong> <code>MODULE_ACCESS_QUOTATION</code></p>
+      <ul>
+        <li>Quotations, RFQ, and purchase-order style approvals.</li>
+        <li>Vendor master shared with Assets; mail workflows for vendors when SMTP is configured.</li>
+        <li>KPI filters: total, pending, under review, approved, rejected, on hold, overdue, high value.</li>
+      </ul>
+    </section>
+
+    <section id="projects">
+      <h2>6. Projects</h2>
+      <p><strong>Path:</strong> <code>/module/projects</code> · <strong>Key:</strong> <code>project</code> · <strong>Access:</strong> <code>MODULE_ACCESS_PROJECT</code></p>
+      <ul>
+        <li>Projects, tasks, templates, risks and issues.</li>
+        <li>KPI view: onboarded, on track, need attention, at risk, completed, total budget.</li>
+        <li>Schema bootstrapped by SQL scripts + <code>ensure_*</code> on first open (same pattern as DMS).</li>
+      </ul>
+    </section>
+
+    <section id="floor-map">
+      <h2>7. Floor Map</h2>
+      <p><strong>Path:</strong> <code>/module/floor-map</code> · <strong>Key:</strong> <code>floor_map</code> · <strong>Access:</strong> <code>MODULE_ACCESS_FLOOR_MAP</code></p>
+      <ul>
+        <li>Visual floor plans with asset pins.</li>
+        <li>View vs manage capabilities assigned per role in the Role Access Matrix.</li>
+      </ul>
+    </section>
+
+    <section id="dms">
+      <h2>8. Document Management (DMS)</h2>
+      <p><strong>Path:</strong> <code>/module/documents</code> · <strong>Key:</strong> <code>dms</code> (default <strong>off</strong>) · <strong>Access:</strong> <code>MODULE_ACCESS_DMS</code></p>
+      <ul>
+        <li>Controlled documents: register, quarantine upload, revision, review, approve, publish.</li>
+        <li>Scoped DMS roles (READER, AUTHOR, REVIEWER, APPROVER, DOCUMENT_CONTROLLER, …) expand through <code>dms.RolePermission</code>.</li>
+        <li>Owner ≠ reading audience; published download requires audience or oversight permission.</li>
+        <li>Library and register KPI cards; tasks list for pending workflow work.</li>
+      </ul>
+      <h3>Operator checklist</h3>
+      <ol>
+        <li>Admin Settings → turn on Document Management.</li>
+        <li>Open Documents once (or run <code>db/sql/048_dms_module.sql</code>) so tables/permissions exist.</li>
+        <li>Assign scoped DMS roles — portal roles alone do not grant approve/publish.</li>
+        <li>Grant <code>MODULE_ACCESS_DMS</code> only when a role should see the menu without a DMS assignment.</li>
+      </ol>
+      <p>Longer assessment notes are in the repo: <code>docs/dms-assessment-and-plan.md</code>.</p>
+    </section>
+
+    <section id="elearning">
+      <h2>9. E-Learning</h2>
+      <p><strong>Path:</strong> <code>/module/e-learning</code> · <strong>Key:</strong> <code>elearning</code> · <strong>Access:</strong> <code>MODULE_ACCESS_ELEARNING</code></p>
+      <ul>
+        <li>Course Library, Request a course, My requests, My Task, My Courses, Create course, Certificates, Course Calendar, Target Audience.</li>
+        <li>Main KPI chrome: Assigned, In progress, Due this week, Overdue, Mandatory, Published.</li>
+        <li>SCORM / course package build from materials (including large video uploads), quiz attempts, continue-gates between sections.</li>
+        <li>Certificates with QR verification pages (hosted certificate verify flow).</li>
+        <li>Enrollment, re-enrollment after quiz fail / expiry, launch-date rules for COO publish.</li>
+      </ul>
+      <h3>Workflow summary (course request → publish)</h3>
+      <ol>
+        <li>Requester submits a course request with format, materials, and audience details.</li>
+        <li>HR / preparation / quality stages review and forward (stage labels appear on My Task).</li>
+        <li>Preparation team builds or uploads the SCORM package; competency checklist when required.</li>
+        <li>Course owner / EL Admin prepares, then leadership (including COO) publishes with launch-date checks.</li>
+        <li>Learners take the course from the library; completion issues a certificate and optional QR verify page.</li>
+      </ol>
+      <p>Detailed internal workflow write-up: <code>docs/EAMS_ELearning_Full_Workflows.docx</code> (repo).</p>
+    </section>
+
+    <section id="admin">
+      <h2>Admin, Users, FAQs</h2>
+      <ul>
+        <li><strong>Admin Settings</strong> — <code>/admin</code>: organization masters, identity, Role Access Matrix, module activation, feature flags, notification templates, certificate signatories, purge tools.</li>
+        <li><strong>Users</strong> — <code>/module/users</code> when permitted.</li>
+        <li><strong>FAQs</strong> — <code>/module/faqs</code> for privileged helpers.</li>
+        <li><strong>Dashboard</strong> — <code>/dashboard</code> with module tiles and counts.</li>
+      </ul>
+    </section>
+
+    <section id="api">
+      <h2>Selected JSON APIs</h2>
+      <p>Prefix <code>/api/v1</code> (OpenAPI: <code>/docs</code> when enabled).</p>
+      <ul>
+        <li>Assets — <code>GET/POST /assets</code>, <code>GET/PUT /assets/{id}</code></li>
+        <li>Service Desk — <code>/service-desk/tickets</code></li>
+        <li>Changes — <code>/changes</code></li>
+        <li>Quotations — submit / decision / pending</li>
+        <li>Auth — <code>GET /auth/me</code></li>
+        <li>Admin — users, departments, roles, services, access</li>
+      </ul>
+      <p>Module UIs also call many <code>/module/…/api/…</code> endpoints for tables, KPIs, and wizards.</p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <a href="index.html">Overview</a> · <a href="stack-requirements.html">Stack &amp; requirements</a> · EAMS V.1.40
+    </div>
+  </footer>
+</body>
+</html>

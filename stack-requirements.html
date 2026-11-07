@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stack &amp; requirements — EAMS Guide</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topnav">
+    <div class="wrap topnav-inner">
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"></span>EAMS Guide</a>
+      <nav class="nav-links" aria-label="Guide">
+        <a href="index.html">Overview</a>
+        <a class="is-on" href="stack-requirements.html">Stack &amp; requirements</a>
+        <a href="modules.html">All modules</a>
+        <a href="https://github.com/sudheepnbr/eams-guide">Guide repo</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <h1>Tech stack &amp; requirements</h1>
+      <p>Everything needed to run EAMS on-premises for Oman International Hospital IT.</p>
+    </div>
+
+    <section id="stack">
+      <h2>Technology stack</h2>
+      <table>
+        <thead><tr><th>Layer</th><th>Choice</th></tr></thead>
+        <tbody>
+          <tr><td>Language</td><td>Python 3.11+</td></tr>
+          <tr><td>Web framework</td><td>FastAPI + Starlette + Jinja2 templates</td></tr>
+          <tr><td>ORM / SQL</td><td>SQLAlchemy 2.x with <code>text()</code> SQL for module queries</td></tr>
+          <tr><td>Database</td><td>Microsoft SQL Server (schemas: <code>core</code>, <code>asset</code>, <code>dms</code>, …)</td></tr>
+          <tr><td>DB driver</td><td><code>pyodbc</code> + ODBC Driver 17/18 for SQL Server</td></tr>
+          <tr><td>App server</td><td>Uvicorn (dev) or Waitress (Windows service / PROD)</td></tr>
+          <tr><td>Auth</td><td>Cookie web login + AD SSO trusted headers; optional LDAP</td></tr>
+          <tr><td>Documents / PDF</td><td>PyMuPDF, openpyxl, Pillow, qrcode</td></tr>
+          <tr><td>Barcode</td><td>zxing-cpp (camera scanning needs HTTPS outside localhost)</td></tr>
+          <tr><td>Optional AI</td><td>Cursor-hosted agent via <code>cursor-sdk</code> (UAT only; not for production)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="python-deps">
+      <h2>Python packages</h2>
+      <p>From <code>requirements.txt</code> (application) and <code>requirements-db.txt</code> (SQL Server):</p>
+      <pre><code>fastapi, uvicorn[standard], sqlalchemy, pydantic, pydantic-settings
+python-dotenv, python-multipart, Jinja2, pymupdf, openpyxl
+ldap3, zxing-cpp, Pillow, qrcode, starlette, anyio
+pyasn1, msgpack, urllib3, defusedxml, cursor-sdk
+pyodbc   # requirements-db.txt</code></pre>
+    </section>
+
+    <section id="system">
+      <h2>System requirements</h2>
+      <h3>Server</h3>
+      <ul>
+        <li>Windows Server or Windows 10/11 (PROD uses a Windows service), or Linux with ODBC + SQL Server reachable.</li>
+        <li>CPU/RAM sized for concurrent hospital users and SCORM/package uploads (E-Learning video materials can be large).</li>
+        <li>Disk for <code>uploads/</code> (assets, service desk, DMS quarantine/vault, e-learning packages) plus SQL data files.</li>
+        <li>Network: LAN access to SQL Server; optional outbound SMTP and Microsoft App Proxy for external approvers.</li>
+      </ul>
+      <h3>Database</h3>
+      <ul>
+        <li>Microsoft SQL Server 2019+ recommended.</li>
+        <li>ODBC Driver 17 or 18 for SQL Server on the app host.</li>
+        <li>Database created before first run; apply scripts under <code>db/sql/</code> in order (see install).</li>
+      </ul>
+      <h3>Clients</h3>
+      <ul>
+        <li>Modern Chromium-based browser (Chrome/Edge).</li>
+        <li>HTTPS when using hostname/LAN IP for camera barcode scanning.</li>
+      </ul>
+    </section>
+
+    <section id="env">
+      <h2>Key environment settings</h2>
+      <p>Copy <code>.env.example</code> → <code>.env</code>. Important keys:</p>
+      <table>
+        <thead><tr><th>Variable</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>APP_HOST</code> / <code>APP_PORT</code></td><td>Listen address (default <code>0.0.0.0:8010</code>)</td></tr>
+          <tr><td><code>DATABASE_URL</code></td><td>SQLAlchemy MSSQL URL (<code>mssql+pyodbc://…</code>)</td></tr>
+          <tr><td><code>DB_REQUIRED</code></td><td><code>true</code> in normal ops</td></tr>
+          <tr><td><code>WEB_LOGIN_ENABLED</code></td><td>Portal login page</td></tr>
+          <tr><td><code>IDLE_TIMEOUT_MINUTES</code></td><td>Auto sign-out (0 = never)</td></tr>
+          <tr><td><code>SSO_*</code> headers</td><td>AD SSO contract from reverse proxy</td></tr>
+          <tr><td><code>APP_PUBLIC_BASE_URL</code></td><td>External approval / certificate links</td></tr>
+          <tr><td><code>APP_LAN_BASE_URL</code></td><td>On-network links in emails</td></tr>
+          <tr><td><code>SSL_CERTFILE</code> / <code>SSL_KEYFILE</code></td><td>Direct HTTPS on uvicorn</td></tr>
+          <tr><td><code>AGENT_*</code></td><td>Ask AI (UAT Cursor-hosted agent only)</td></tr>
+        </tbody>
+      </table>
+      <div class="note">Never commit real <code>.env</code>, secrets, or production passwords to Git.</div>
+    </section>
+
+    <section id="install">
+      <h2>Install and first run</h2>
+      <ol>
+        <li>Create a virtual environment and install:
+          <pre><code>pip install -r requirements.txt
+pip install -r requirements-db.txt</code></pre>
+        </li>
+        <li>Configure <code>.env</code> with a working <code>DATABASE_URL</code>.</li>
+        <li>Apply SQL foundation scripts from <code>db/sql/</code> (start with <code>001_init_schema.sql</code>, then numbered follow-ons for admin, SSO mapping, modules).</li>
+        <li>Start the app:
+          <pre><code>python run.py
+# or
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8010</code></pre>
+        </li>
+        <li>Open <code>http://127.0.0.1:8010/</code> — health at <code>/health</code>, OpenAPI at <code>/docs</code>.</li>
+        <li>PROD Windows: use the provided service scripts / <code>Restart EAMS.bat</code> (Waitress on 8010).</li>
+      </ol>
+      <h3>HTTPS for barcode cameras</h3>
+      <p>
+        Set <code>SSL_SAN_IPS</code> (and optional DNS), run <code>scripts/generate_dev_ssl.ps1</code>,
+        trust <code>static/tls/eams-lan.crt</code> on client PCs (or GPO), restart the app.
+      </p>
+    </section>
+
+    <section id="sso">
+      <h2>AD SSO header contract</h2>
+      <p>Reverse proxy / IIS / App Proxy should pass:</p>
+      <ul>
+        <li><code>x-forwarded-user</code> — domain user id</li>
+        <li><code>x-forwarded-name</code> — display name</li>
+        <li><code>x-forwarded-email</code> — email</li>
+        <li><code>x-forwarded-groups</code> — groups separated by <code>;</code> (configurable)</li>
+      </ul>
+      <p>
+        <code>/api/v1/auth/me</code> upserts <code>core.[User]</code>, maps groups via <code>core.ADGroupRoleMap</code>,
+        and writes login audit events.
+      </p>
+    </section>
+
+    <section id="roles">
+      <h2>Canonical portal roles</h2>
+      <p>SUPER_ADMIN, ADMIN, INSTANCE_MANAGER, INSTANCE_TECHNICIAN, MANAGEMENT, AUDITOR, GUEST.</p>
+      <p>
+        Module menus use service catalog codes such as <code>MODULE_ACCESS_ASSET</code>,
+        <code>MODULE_ACCESS_SERVICE_DESK</code>, <code>MODULE_ACCESS_ELEARNING</code>, <code>MODULE_ACCESS_DMS</code>.
+        Fine-grained actions use the Role Access Matrix and module-specific permission codes.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <a href="index.html">Overview</a> · <a href="modules.html">All modules</a> · EAMS V.1.40
+    </div>
+  </footer>
+</body>
+</html>

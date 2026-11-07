@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EAMS Guide — Oman International Hospital</title>
+  <meta name="description" content="Complete guide, tech stack, and requirements for the OIH Enterprise Application Management Suite (EAMS).">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topnav">
+    <div class="wrap topnav-inner">
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"></span>EAMS Guide</a>
+      <nav class="nav-links" aria-label="Guide">
+        <a class="is-on" href="index.html">Overview</a>
+        <a href="stack-requirements.html">Stack &amp; requirements</a>
+        <a href="modules.html">All modules</a>
+        <a href="https://github.com/sudheepnbr/eams-guide">Guide repo</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <h1>OIH Enterprise Application Management Suite</h1>
+      <p>
+        On-premises hospital IT platform for assets, maintenance, service desk, change,
+        quotations, projects, floor maps, controlled documents, and e-learning — with shared
+        RBAC, instance scope, and Microsoft SQL Server.
+      </p>
+      <div class="meta">
+        <span class="pill"><strong>Product</strong> EAMS</span>
+        <span class="pill"><strong>Version</strong> V.1.40</span>
+        <span class="pill"><strong>Org</strong> Oman International Hospital · IT</span>
+        <span class="pill"><strong>Docs</strong> sudheepnbr/eams-guide</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <article class="card">
+        <h3>Stack &amp; requirements</h3>
+        <p>Python, FastAPI, SQL Server, Waitress/Uvicorn, OS and browser prerequisites, and install steps.</p>
+        <a class="href" href="stack-requirements.html">Open stack guide →</a>
+      </article>
+      <article class="card">
+        <h3>All modules</h3>
+        <p>Purpose, routes, activation keys, and operator notes for every product area.</p>
+        <a class="href" href="modules.html">Browse modules →</a>
+      </article>
+      <article class="card">
+        <h3>Source repository</h3>
+        <p>Application code, SQL scripts, Windows service helpers, and changelog tags.</p>
+        <a class="href" href="https://github.com/sudheepnbr/eams-guide">View guide source →</a>
+      </article>
+    </div>
+
+    <section id="what">
+      <h2>What EAMS is</h2>
+      <p>
+        EAMS is a FastAPI web application with Jinja module screens wrapped by a shared portal layout
+        (session cookie <code>eams_user</code>). JSON APIs live under <code>/api/v1</code>.
+        Module routers live under <code>app/modules/&lt;name&gt;</code>. Schema is applied from
+        <code>db/sql</code> scripts and idempotent <code>ensure_*_schema</code> helpers on first use.
+      </p>
+      <div class="note">
+        Document Management defaults <strong>off</strong> until activated in Admin → module activation.
+        Other modules default on.
+      </div>
+    </section>
+
+    <section id="modules-at-a-glance">
+      <h2>Modules at a glance</h2>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Module</th><th>Path</th><th>Activation key</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Asset</td><td><code>/module/assets</code></td><td><code>asset</code></td></tr>
+          <tr><td>2</td><td>Maintenance</td><td><code>/module/asset-maintenance</code></td><td><code>maintenance</code></td></tr>
+          <tr><td>3</td><td>Service Desk</td><td><code>/module/service-desk</code></td><td><code>service_desk</code></td></tr>
+          <tr><td>4</td><td>Change</td><td><code>/module/changes</code></td><td><code>change</code></td></tr>
+          <tr><td>5</td><td>Quotation and PO</td><td><code>/module/quotations</code></td><td><code>quotation</code></td></tr>
+          <tr><td>6</td><td>Projects</td><td><code>/module/projects</code></td><td><code>project</code></td></tr>
+          <tr><td>7</td><td>Floor Map</td><td><code>/module/floor-map</code></td><td><code>floor_map</code></td></tr>
+          <tr><td>8</td><td>Document Management</td><td><code>/module/documents</code></td><td><code>dms</code></td></tr>
+          <tr><td>9</td><td>E-Learning</td><td><code>/module/e-learning</code></td><td><code>elearning</code></td></tr>
+        </tbody>
+      </table>
+      <p>Full operator detail: <a href="modules.html">All modules</a>.</p>
+    </section>
+
+    <section id="platform">
+      <h2>Shared platform services</h2>
+      <ul>
+        <li><strong>RBAC</strong> — portal roles (SUPER_ADMIN, ADMIN, INSTANCE_MANAGER, …) plus module service codes and Role Access Matrix features.</li>
+        <li><strong>Instance scope</strong> — IT / biomedical / facilities style instances via <code>core.UserInstance</code>.</li>
+        <li><strong>AD SSO-ready</strong> — trusted headers from reverse proxy / App Proxy; LDAP helpers for directories and assignees.</li>
+        <li><strong>Audit</strong> — <code>audit.EventLog</code> for significant actions.</li>
+        <li><strong>Notifications</strong> — templates in <code>core.NotificationTemplate</code>; outbound mail via configured SMTP/delivery.</li>
+        <li><strong>Admin Settings</strong> — organization masters, users/roles, module activation, mandatory fields, certificate signatories.</li>
+      </ul>
+    </section>
+
+    <section id="ops">
+      <h2>Typical production layout</h2>
+      <ul>
+        <li>Windows host with Microsoft SQL Server and ODBC Driver 17+.</li>
+        <li>App served by Waitress (Windows service <code>EAMSConnect</code>) or Uvicorn on port <strong>8010</strong>.</li>
+        <li>Optional HTTPS / reverse proxy (Caddy, IIS, Microsoft App Proxy) for LAN and external approvers.</li>
+        <li>Uploads under <code>uploads/</code> (not public static); keep backups of DB + uploads.</li>
+      </ul>
+      <p>Version source of truth: root <code>VERSION</code> → footer <code>OIH Enterprise Application Management Suite-V.X.Y</code>.</p>
+    </section>
+
+    <section id="toc">
+      <h2>Guide contents</h2>
+      <div class="toc">
+        <a href="stack-requirements.html">1. Tech stack &amp; system requirements</a>
+        <a href="stack-requirements.html#install">2. Install and first run</a>
+        <a href="modules.html">3. Module reference (all nine product areas)</a>
+        <a href="modules.html#elearning">4. E-Learning workflow summary</a>
+        <a href="modules.html#dms">5. Document Management operator notes</a>
+        <a href="https://github.com/sudheepnbr/eams-guide">6. Guide repository</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      OIH IT Department · EAMS documentation published from the <code>docs/</code> folder on GitHub Pages · V.1.40
+    </div>
+  </footer>
+</body>
+</html>
